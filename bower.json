@@ -7,7 +7,6 @@
   ],
   "main": "src/www/js/points-of-interest.js",
   "dependencies": {
-    "bacon": "~0.7.70"
   },
   "keywords": [
     "fieldtrip-open"
