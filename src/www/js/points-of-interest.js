@@ -80,6 +80,31 @@ define(function(require) {
     };
 
     /**
+     * Add styles to the POI features
+     * @param layer {OpenLayers.Layer} a layer
+     */
+    var setPOILayerStyles = function(layer) {
+        var defaultStyle;
+        var selectStyle;
+
+        defaultStyle = {
+            graphicWidth: 35,
+            graphicHeight: 50,
+            externalGraphic: PLUGIN_PATH + '/css/images/plain_marker@2x.png'
+        };
+
+        selectStyle = {
+            graphicWidth: 35,
+            graphicHeight: 50,
+            externalGraphic: PLUGIN_PATH + '/css/images/plain_marker@2x.png',
+            graphicOpacity: 0.9
+        };
+
+        map.setLayerStyle(layer, defaultStyle, 'default');
+        map.setLayerStyle(layer, selectStyle, 'select');
+    };
+
+    /**
      * Adds a geoJSON as a POI layer to the map
      * @param poiGeoJSON {Object} and object containing the geoJSON with the POI
      */
@@ -97,6 +122,8 @@ define(function(require) {
         layerName = poiGeoJSON.properties.name;
 
         poiLayer = map.addGeoJSONLayer(layerId, poiGeoJSON);
+
+        setPOILayerStyles(poiLayer);
 
         poiLayer.setVisibility(true);
     };
