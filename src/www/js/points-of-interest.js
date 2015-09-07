@@ -9,6 +9,7 @@ define(function(require) {
     var file = require('file');
     var download = require('plugins/sync/js/download');
     var cards = require('./cards');
+    var actions = require('./actions');
 
     //Constants
     var PLUGIN_PATH = 'plugins/points-of-interest';
@@ -80,6 +81,79 @@ define(function(require) {
     };
 
     /**
+     * Open an editor from the parameters of the action
+     * @param action {Object}
+     *     param.name {String} name of the editor
+     *     param.group {String} group of the editor (optional)
+     */
+    var openEditor = function(action) {
+        var params = action.params;
+
+        var group = params.group || records.EDITOR_GROUP.PRIVATE;
+        var name = params.name;
+        records.annotate(group, name);
+    };
+
+    var openCard = function(action) {
+        var params = action.params;
+        var group = params.group || records.EDITOR_GROUP.PRIVATE;
+        var editor = params.editor;
+
+        var card = params.card;
+        var cardUrl = 'view-card.html' +
+            '?group=' + group + '&editor=' + editor + '&card=' + card;
+
+        $('body').pagecontainer('change', cardUrl);
+    };
+
+    /**
+     * Open an editor
+     * @param action {Object}
+     *     - type {String} type of object to open
+     */
+    var doOpen = function(action) {
+        var type = action.params.type;
+
+        switch (type) {
+            case 'editor':
+                openEditor(action);
+                break;
+            case 'card':
+                openCard(action);
+                break;
+            default:
+                console.warn('Don\'t know how to open: [' + type + ']');
+        }
+    };
+
+    /**
+     * Register the initial actions for the markers
+     */
+    var registerActions = function() {
+        actions.register('open', doOpen);
+    };
+
+    /**
+     * Register the actios over the features of the POI Layer
+     * @param layer {OpenLayers.Layer} reference to the layer
+     */
+    var registerPOILayerEvents = function(layer) {
+        var onFeatureSelect = function(evt) {
+            var feature = evt.feature;
+            actions.perform(feature.data.action);
+        };
+
+        var onFeatureUnselect = function(evt) {
+            var feature = evt.feature;
+        };
+
+        map.registerFeatureEvents(layer, {
+            selected: onFeatureSelect,
+            unselected: onFeatureUnselect
+        });
+    };
+
+    /**
      * Add styles to the POI features
      * @param layer {OpenLayers.Layer} a layer
      */
@@ -124,6 +198,8 @@ define(function(require) {
         poiLayer = map.addGeoJSONLayer(layerId, poiGeoJSON);
 
         setPOILayerStyles(poiLayer);
+        registerPOILayerEvents(poiLayer);
+        registerActions();
 
         poiLayer.setVisibility(true);
     };
