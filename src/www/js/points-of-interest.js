@@ -27,7 +27,7 @@ define(function(require) {
         var layer = map.getLayer(layerMetadata.id);
 
         if (layer) {
-            layer.display(true);
+            map.showLayer(layer);
         }
         else {
             fetchFileURLAsJSON(layerMetadata.options.fileURL)
@@ -46,7 +46,7 @@ define(function(require) {
         var layer = map.getLayer(layerMetadata.id);
 
         if (layer) {
-            layer.display(false);
+            map.hideLayer(layer);
         }
         else {
             console.warn('Not layer found with id' + layerMetadata.id);
